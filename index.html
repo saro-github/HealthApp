@@ -52,6 +52,19 @@
             max-width: 200px;
             height: auto;
         }
+        /* Center button */
+        .center-btn {
+            display: flex;
+            justify-content: center;
+        }
+        /* Hide PyScript loading details */
+        .py-terminal, .py-loading, .py-terminal-wrapper, .py-progress, .py-button {
+            display: none !important;
+        }
+        /* Hide the entire PyScript code block */
+        py-script {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -76,9 +89,11 @@
         <h1 class="text-center mb-4">My Healthhood</h1>
 
         <!-- Blood Pressure Generator Section -->
-        <h2>Generate Random Blood Pressure</h2>
-        <button id="generate-btn" class="btn btn-secondary mb-3">Generate Blood Pressure</button>
-        <p id="bp-output" class="mb-3"></p>
+        <h2 class="text-center">Generate Random Blood Pressure</h2>
+        <div class="center-btn mb-3">
+            <button id="generate-btn" class="btn btn-secondary">Generate Blood Pressure</button>
+        </div>
+        <p id="bp-output" class="mb-3 text-center"></p>
 
         <!-- Image Analysis Section -->
         <h2>Analyze Image for Skin Cancer</h2>
@@ -94,7 +109,7 @@
         import random
         import micropip
         import asyncio
-        from js import window  # Import 'window' to use JavaScript's URL.createObjectURL
+        from js import window
 
         async def main():
             await micropip.install("pillow")
@@ -122,21 +137,25 @@
 
             # Blood pressure generation function
             def generate_blood_pressure():
-                systolic = random.randint(90, 140)
-                diastolic = random.randint(60, 90)
-                return f"{systolic}/{diastolic} mmHg"
+                systolic = random.randint(90, 160)
+                diastolic = random.randint(60, 110)
+                return systolic, diastolic
 
             def display_blood_pressure(event):
                 bp_output = Element("bp-output")
-                blood_pressure = generate_blood_pressure()
-                bp_output.write(f"Generated Blood Pressure: {blood_pressure}")
+                systolic, diastolic = generate_blood_pressure()
+                bp_output.write(f"Generated Blood Pressure: {systolic}/{diastolic} mmHg")
+
+                # Check if the blood pressure is high
+                if systolic > 140 or diastolic > 100:
+                    bp_output.element.innerHTML += '<br><span class="red-text">High blood pressure detected. Consult a doctor.</span>'
 
             # Image analysis function
             def analyze_image(file_input):
                 analysis_output = Element("analysis-output")
                 preview_image = Element("img-preview")
 
-                # Display the image preview using JavaScript's URL.createObjectURL
+                # Display the image preview
                 preview_image.element.src = window.URL.createObjectURL(file_input)
 
                 if file_input:
@@ -167,7 +186,6 @@
 
             Element("upload-img").element.onchange = handle_image_upload
 
-        # Run the main coroutine
         asyncio.ensure_future(main())
     </py-script>
 
