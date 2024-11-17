@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Health Analysis App</title>
+    <title>Comprehensive Health App</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script defer src="https://pyscript.net/latest/pyscript.js"></script>
     <style>
@@ -22,29 +22,45 @@
             position: absolute;
             top: 15px;
             right: 15px;
-            display: none; /* Initially hidden */
+            display: none;
         }
-        #preview-container img {
+        .image-preview {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #img-preview {
             max-width: 100%;
-            height: auto;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
+            max-height: 300px;
+            margin-top: 20px;
             border-radius: 8px;
-            padding: 5px;
-            background-color: #f9f9f9;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
-        .result-text {
-            font-weight: bold;
-            padding: 5px;
+        .center-btn {
+            display: flex;
+            justify-content: center;
+        }
+        .report-container {
+            display: none;
+        }
+        .report-content {
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #fefefe;
+            margin-top: 15px;
         }
         .red-text {
             color: red;
+            font-weight: bold;
         }
         .orange-text {
             color: orange;
+            font-weight: bold;
         }
         .green-text {
             color: green;
+            font-weight: bold;
         }
         .logo {
             display: block;
@@ -73,135 +89,310 @@
 
     <!-- Login Section -->
     <div class="container" id="login-section">
-        <h1 class="text-center mb-4">Login to Access My Healthhood</h1>
+        <h1 class="text-center mb-4">Login to Access Health App</h1>
         <input type="text" id="username" placeholder="Username" class="form-control mb-2">
         <input type="password" id="password" placeholder="Password" class="form-control mb-3">
         <button id="login-btn" class="btn btn-primary w-100 mb-3">Login</button>
-
-        <!-- Logo -->
         <img src="APPLOGO.jpeg" alt="App Logo" class="logo">
-
         <p id="login-output" class="mt-2 text-center"></p>
     </div>
 
-    <!-- Analysis Section -->
-    <div class="container" id="analysis-section" style="display: none;">
-        <h1 class="text-center mb-4">My Healthhood</h1>
+    <!-- Patient Registration Section -->
+    <div class="container" id="registration-section" style="display: none;">
+        <h1 class="text-center mb-4">Patient Registration</h1>
+        <input type="text" id="first-name" placeholder="First Name" class="form-control mb-2">
+        <input type="text" id="last-name" placeholder="Last Name" class="form-control mb-2">
+        <input type="email" id="email" placeholder="Email" class="form-control mb-2">
+        <input type="text" id="phone" placeholder="Phone Number" class="form-control mb-2">
+        <button id="register-btn" class="btn btn-success w-100 mb-3">Register Patient</button>
+        <p id="registration-output" class="text-center"></p>
 
-        <!-- Blood Pressure Generator Section -->
-        <h2 class="text-center">Generate Random Blood Pressure</h2>
-        <div class="center-btn mb-3">
-            <button id="generate-btn" class="btn btn-secondary">Generate Blood Pressure</button>
-        </div>
-        <p id="bp-output" class="mb-3 text-center"></p>
+        <!-- Search Patient -->
+        <h2 class="mt-4">Search Existing Patient</h2>
+        <input type="text" id="search-id-phone" placeholder="Enter Patient ID or Phone Number" class="form-control mb-2">
+        <button id="search-btn" class="btn btn-info w-100 mb-3">Search Patient</button>
+        <p id="search-output" class="text-center"></p>
+
+        <!-- Next Step Button -->
+        <button id="next-btn" class="btn btn-primary w-100 mb-3" style="display: none;">Proceed to Enter Vitals</button>
+    </div>
+
+    <!-- Vitals Entry Section -->
+    <div class="container" id="vitals-section" style="display: none;">
+        <h1 class="text-center mb-4">Enter Patient Vitals</h1>
+        <input type="text" id="blood-pressure" placeholder="Blood Pressure (e.g., 120/80)" class="form-control mb-2">
+        <input type="number" id="pulse-rate" placeholder="Pulse Rate (bpm)" class="form-control mb-2">
+        <input type="number" id="temperature" placeholder="Temperature (°C)" class="form-control mb-2">
+        <input type="number" id="height" placeholder="Height (cm)" class="form-control mb-2">
+        <input type="number" id="weight" placeholder="Weight (kg)" class="form-control mb-2">
+        <button id="save-vitals-btn" class="btn btn-success w-100 mb-3">Save Vitals</button>
 
         <!-- Image Analysis Section -->
-        <h2>Analyze Image for Skin Cancer</h2>
-        <p id="analysis-output" class="result-text mb-2"></p>
-        <input type="file" id="upload-img" accept="image/*" class="form-control mb-3">
-        <div id="preview-container" class="text-center">
-            <img id="img-preview" alt="Image preview will appear here.">
+        <h2 class="mt-4">Analyze Image for Skin Cancer</h2>
+        <input type="file" id="upload-img" accept="image/*" class="form-control mb-2">
+        <p id="analysis-output" class="mt-2"></p>
+
+        <!-- Image Preview -->
+        <div class="image-preview">
+            <img id="img-preview" src="" alt="Image Preview">
         </div>
+
+        <!-- Generate Report -->
+        <button id="generate-report-btn" class="btn btn-warning w-100 mb-3">Generate Report</button>
+        <div class="report-container" id="report-container">
+            <div class="report-content" id="report-content"></div>
+            <button class="btn btn-primary w-100 mt-2" onclick="window.print()">Print Report</button>
+        </div>
+
+        <!-- Next Patient Registration -->
+        <button id="new-registration-btn" class="btn btn-secondary w-100 mt-3">Register New Patient</button>
+        <button id="new-search-btn" class="btn btn-secondary w-100 mt-3">Search Another Patient</button>
     </div>
 
     <!-- PyScript Code -->
     <py-script>
         import random
+        import json
         import micropip
         import asyncio
-        from js import window
+        from js import FileReader, URL
+        from pyodide.ffi import create_proxy
 
         async def main():
             await micropip.install("pillow")
             from PIL import Image, ImageOps
 
-            # Hardcoded username and password
+            # File to store patient data
+            PATIENT_DATA_FILE = 'patients_data.json'
+
+            # Hardcoded credentials
             VALID_USERNAME = "user"
             VALID_PASSWORD = "password"
 
-            # Function to validate login
+            def load_patient_data():
+                try:
+                    with open(PATIENT_DATA_FILE, 'r') as file:
+                        return json.load(file)
+                except FileNotFoundError:
+            	        return {}
+
+            def save_patient_data(data):
+                with open(PATIENT_DATA_FILE, 'w') as file:
+                    json.dump(data, file, indent=4)
+
+            def generate_patient_id():
+                return f"PID{random.randint(1000, 9999)}"
+
             def handle_login(event):
                 username_input = Element("username").element.value
                 password_input = Element("password").element.value
                 login_output = Element("login-output")
-                analysis_section = Element("analysis-section")
+                registration_section = Element("registration-section")
                 logout_btn = Element("logout-btn")
 
                 if username_input == VALID_USERNAME and password_input == VALID_PASSWORD:
                     login_output.write("Login successful!")
                     Element("login-section").element.style.display = "none"
-                    analysis_section.element.style.display = "block"
-                    logout_btn.element.style.display = "block"  # Show the logout button
+                    registration_section.element.style.display = "block"
+                    logout_btn.element.style.display = "block"
                 else:
                     login_output.write("Invalid username or password. Please try again.")
 
-            # Blood pressure generation function
-            def generate_blood_pressure():
-                systolic = random.randint(90, 160)
-                diastolic = random.randint(60, 110)
-                return systolic, diastolic
+            def register_patient(event):
+                first_name = Element("first-name").element.value
+                last_name = Element("last-name").element.value
+                email = Element("email").element.value
+                phone = Element("phone").element.value
+                registration_output = Element("registration-output")
 
-            def display_blood_pressure(event):
-                bp_output = Element("bp-output")
-                systolic, diastolic = generate_blood_pressure()
-                bp_output.write(f"Generated Blood Pressure: {systolic}/{diastolic} mmHg")
+                if not first_name or not last_name or not email or not phone:
+                    registration_output.write("All fields are required.")
+                    return
 
-                # Check if the blood pressure is high
-                if systolic > 140 or diastolic > 100:
-                    bp_output.element.innerHTML += '<br><span class="red-text">High blood pressure detected. Consult a doctor.</span>'
+                patient_id = generate_patient_id()
+                new_patient = {
+                    "patient_id": patient_id,
+                    "first_name": first_name,
+                    "last_name": last_name,
+                    "email": email,
+                    "phone": phone,
+                    "vitals": []
+                }
 
-            # Image analysis function
+                data = load_patient_data()
+                data[patient_id] = new_patient
+                save_patient_data(data)
+
+                registration_output.write(f"Patient Registered. ID: {patient_id}")
+
+            def search_patient(event):
+                search_input = Element("search-id-phone").element.value
+                search_output = Element("search-output")
+                next_btn = Element("next-btn")
+                data = load_patient_data()
+
+                for patient in data.values():
+                    if patient["patient_id"] == search_input or patient["phone"] == search_input:
+                        search_output.write(f"Patient Found: {patient['first_name']} {patient['last_name']}, Email: {patient['email']}, Phone: {patient['phone']}")
+                        next_btn.element.style.display = 'block'
+                        return
+
+                search_output.write("No matching patient found.")
+                next_btn.element.style.display = 'none'
+
+            def proceed_to_vitals(event):
+                Element("registration-section").element.style.display = "none"
+                Element("vitals-section").element.style.display = "block"
+
+            def save_vitals(event):
+                search_input = Element("search-id-phone").element.value
+                blood_pressure = Element("blood-pressure").element.value
+                pulse_rate = Element("pulse-rate").element.value
+                temperature = Element("temperature").element.value
+                height = Element("height").element.value
+                weight = Element("weight").element.value
+                analysis_output = Element("analysis-output")
+                data = load_patient_data()
+
+                if '/' in blood_pressure:
+                    systolic, diastolic = map(int, blood_pressure.split('/'))
+                    if systolic > 140 or diastolic > 100:
+                        analysis_output.element.innerHTML = '<span class="red-text">High blood pressure: Consult a doctor!</span>'
+                    else:
+                        analysis_output.element.innerHTML = '<span class="green-text">Blood pressure is normal.</span>'
+
+                for patient in data.values():
+                    if patient["patient_id"] == search_input or patient["phone"] == search_input:
+                        vitals = {
+                            "blood_pressure": blood_pressure,
+                            "pulse_rate": pulse_rate,
+                            "temperature": temperature,
+                            "height": height,
+                            "weight": weight
+                        }
+                        patient["vitals"].append(vitals)
+                        save_patient_data(data)
+                        return
+
+            def handle_image_upload(event):
+                files = event.target.files  # Get the files from the event
+                if len(files) > 0:
+                    file_input = files.item(0)  # Get the first file from the file input
+                    analyze_image(file_input)  # Pass the file input to analyze_image
+
+                    # Generate an Object URL for the selected image
+                    reader = FileReader.new()
+                    reader.onloadend = create_proxy(lambda e: update_image_preview(reader.result))
+                    reader.readAsDataURL(file_input)
+                else:
+                    Element("analysis-output").write("Failed to upload file.")  # Error message
+
             def analyze_image(file_input):
                 analysis_output = Element("analysis-output")
-                preview_image = Element("img-preview")
-
-                # Display the image preview
-                preview_image.element.src = window.URL.createObjectURL(file_input)
-
                 if file_input:
-                    filename = file_input.name
+                    file_name = file_input.name.lower()
 
-                    # Check filename for "cancer"
-                    if "cancer" in filename.lower():
-                        analysis_output.element.innerHTML = '<span class="red-text">Result: The image name suggests it indicates skin cancer.</span>'
-                    elif "mild" in filename.lower():
+                    if "severe_cancer" in file_name:
+                        analysis_output.element.innerHTML = '<span class="red-text">Result: The image name suggests it indicates severe skin cancer.</span>'
+                    elif "mild_cancer" in file_name:
                         analysis_output.element.innerHTML = '<span class="orange-text">Result: The image name suggests it indicates mild skin cancer.</span>'
                     else:
                         analysis_output.element.innerHTML = '<span class="green-text">Result: The image name suggests no skin cancer.</span>'
                 else:
                     analysis_output.write("No image uploaded.")
 
-            # Attach event listeners
+            def update_image_preview(image_url):
+                img_preview = Element("img-preview")
+                img_preview.element.src = image_url  # Set image preview source
+
+            def generate_report(event):
+                search_input = Element("search-id-phone").element.value
+                report_container = Element("report-container")
+                report_content = Element("report-content")
+                data = load_patient_data()
+
+                for patient in data.values():
+                    if patient["patient_id"] == search_input or patient["phone"] == search_input:
+                        vitals_info = ""
+                        for vital in patient["vitals"]:
+                            vitals_info += f"<p><strong>Blood Pressure:</strong> {vital['blood_pressure']}<br><strong>Pulse Rate:</strong> {vital['pulse_rate']} bpm<br><strong>Temperature:</strong> {vital['temperature']}°C<br><strong>Height:</strong> {vital['height']} cm<br><strong>Weight:</strong> {vital['weight']} kg</p>"
+
+                        report_content.write(f"<h3>Patient Report</h3><p><strong>Name:</strong> {patient['first_name']} {patient['last_name']}<br><strong>Email:</strong> {patient['email']}<br><strong>Phone:</strong> {patient['phone']}<br><strong>Patient ID:</strong> {patient['patient_id']}</p>{vitals_info}")
+                        report_container.element.style.display = 'block'
+                        return
+
+                report_content.write("No report available.")
+                report_container.element.style.display = 'none'
+
             Element("login-btn").element.onclick = handle_login
-            Element("generate-btn").element.onclick = display_blood_pressure
-
-            # Attach event listener for image input
-            def handle_image_upload(event):
-                files = event.target.files
-                if len(files) > 0:
-                    file_input = files.item(0)
-                    analyze_image(file_input)
-                else:
-                    Element("analysis-output").write("Failed to upload file.")
-
+            Element("register-btn").element.onclick = register_patient
+            Element("search-btn").element.onclick = search_patient
+            Element("next-btn").element.onclick = proceed_to_vitals
+            Element("save-vitals-btn").element.onclick = save_vitals
+            Element("generate-report-btn").element.onclick = generate_report
             Element("upload-img").element.onchange = handle_image_upload
 
+            def logout(event):
+                Element("login-section").element.style.display = 'block'
+                Element("registration-section").element.style.display = 'none'
+                Element("vitals-section").element.style.display = 'none'
+                Element("logout-btn").element.style.display = 'none'
+                Element("username").element.value = ''
+                Element("password").element.value = ''
+                Element("login-output").write('')
+                Element("registration-output").write('')
+                Element("search-output").write('')
+                Element("first-name").element.value = ''
+                Element("last-name").element.value = ''
+                Element("email").element.value = ''
+                Element("phone").element.value = ''
+                Element("search-id-phone").element.value = ''
+                Element("blood-pressure").element.value = ''
+                Element("pulse-rate").element.value = ''
+                Element("temperature").element.value = ''
+                Element("height").element.value = ''
+                Element("weight").element.value = ''
+                Element("analysis-output").write('')
+                Element("img-preview").element.src = ''
+                Element("upload-img").element.value = ''
+                Element("report-container").element.style.display = 'none'
+
+            Element("logout-btn").element.onclick = logout
+
+            def handle_new_registration(event):
+                logout(event)
+                Element("login-section").element.style.display = "none"
+                Element("registration-section").element.style.display = "block"
+                Element("logout-btn").element.style.display = "block"
+                Element("first-name").element.value = ''
+                Element("last-name").element.value = ''
+                Element("email").element.value = ''
+                Element("phone").element.value = ''
+                Element("registration-output").write('')
+                Element("search-output").write('')
+                Element("search-id-phone").element.value = ''
+                Element("report-container").element.style.display = "none"
+                Element("vitals-section").element.style.display = "none"
+
+            def handle_new_search(event):
+                logout(event)
+                Element("login-section").element.style.display = "none"
+                Element("registration-section").element.style.display = "block"
+                Element("logout-btn").element.style.display = "block"
+                Element("search-id-phone").element.value = ''
+                Element("search-output").write('')
+                Element("registration-output").write('')
+                Element("first-name").element.value = ''
+                Element("last-name").element.value = ''
+                Element("email").element.value = ''
+                Element("phone").element.value = ''
+                Element("report-container").element.style.display = "none"
+                Element("vitals-section").element.style.display = "none"
+
+            Element("new-registration-btn").element.onclick = handle_new_registration
+            Element("new-search-btn").element.onclick = handle_new_search
+        # Run the main coroutine
         asyncio.ensure_future(main())
     </py-script>
-
-    <!-- Logout JavaScript -->
-    <script>
-        document.getElementById('logout-btn').onclick = function () {
-            document.getElementById('login-section').style.display = 'block';
-            document.getElementById('analysis-section').style.display = 'none';
-            document.getElementById('logout-btn').style.display = 'none';
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('login-output').innerHTML = '';
-            document.getElementById('bp-output').innerHTML = '';
-            document.getElementById('analysis-output').innerHTML = '';
-            document.getElementById('img-preview').src = '';
-        };
-    </script>
 </body>
 </html>
