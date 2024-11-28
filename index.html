@@ -81,6 +81,22 @@
         py-script {
             display: none;
         }
+        .feedback-container {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        text-align: center;
+        }
+        .feedback-container h2 {
+        color: #333;
+        }
+        .feedback-container .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        padding: 10px 20px;
+        font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -88,6 +104,12 @@
     <button class="btn btn-danger btn-logout" id="logout-btn">Logout</button>
 
     <!-- Login Section -->
+    <div class="container mt-4">
+        <h2>We Value Your Feedback!</h2>
+        <p>Help us improve by providing your valuable feedback.</p>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLScxuRVnDe94ZadIJyGNzqMoIrS_ULRjqLLyla6lrE5B_jTv_w/viewform" target="_blank" class="btn btn-primary">Give Feedback</a>
+    </div>
+
     <div class="container" id="login-section">
         <h1 class="text-center mb-4">Login to Access Health App</h1>
         <input type="text" id="username" placeholder="Username" class="form-control mb-2">
@@ -127,15 +149,16 @@
         <input type="number" id="weight" placeholder="Weight (kg)" class="form-control mb-2">
         <button id="save-vitals-btn" class="btn btn-success w-100 mb-3">Save Vitals</button>
 
-        <!-- Image Analysis Section -->
+        <!-- Blood Pressure Message -->
+        <p id="bp-warning" class="text-danger" style="display: none;"></p>
+
+        <!-- Analyze Image Section -->
         <h2 class="mt-4">Analyze Image for Skin Cancer</h2>
         <input type="file" id="upload-img" accept="image/*" class="form-control mb-2">
         <p id="analysis-output" class="mt-2"></p>
-
-        <!-- Image Preview -->
-        <div class="image-preview">
-            <img id="img-preview" src="" alt="Image Preview">
-        </div>
+    <div class="image-preview">
+        <img id="img-preview" src="" alt="Image Preview">
+    </div>
 
         <!-- Generate Report -->
         <button id="generate-report-btn" class="btn btn-warning w-100 mb-3">Generate Report</button>
@@ -251,15 +274,23 @@
                 temperature = Element("temperature").element.value
                 height = Element("height").element.value
                 weight = Element("weight").element.value
+                blood_pressure = Element("blood-pressure").element.value
+                bp_warning = Element("bp-warning")
                 analysis_output = Element("analysis-output")
                 data = load_patient_data()
 
                 if '/' in blood_pressure:
                     systolic, diastolic = map(int, blood_pressure.split('/'))
-                    if systolic > 140 or diastolic > 100:
-                        analysis_output.element.innerHTML = '<span class="red-text">High blood pressure: Consult a doctor!</span>'
+                    if systolic > 130 or diastolic > 90:
+                        bp_warning.element.innerHTML = '<span style="color: red; font-weight: bold;">Warning: High blood pressure detected. Please consult a healthcare provider.</span>'
+                    elif systolic < 120 or diastolic < 79:
+                        bp_warning.element.innerHTML = '<span style="color: red; font-weight: bold;">Warning: Low blood pressure detected. Please consult a healthcare provider.</span>'
                     else:
-                        analysis_output.element.innerHTML = '<span class="green-text">Blood pressure is normal.</span>'
+                        bp_warning.element.innerHTML = '<span style="color: green; font-weight: bold;">Blood pressure is within a normal range.</span>'
+                    bp_warning.element.style.display = "block"  # Show the message
+                else:
+                    bp_warning.element.innerHTML = '<span style="color: red; font-weight: bold;">Invalid blood pressure format. Please enter in "120/80" format.</span>'
+                    bp_warning.element.style.display = "block"
 
                 for patient in data.values():
                     if patient["patient_id"] == search_input or patient["phone"] == search_input:
@@ -355,6 +386,7 @@
                 Element("analysis-output").write('')
                 Element("img-preview").element.src = ''
                 Element("upload-img").element.value = ''
+                Element("bp-warning").write('')
                 Element("report-container").element.style.display = 'none'
 
             Element("logout-btn").element.onclick = logout
